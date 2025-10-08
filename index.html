@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>ASCII Rendering</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; font-family: 'consolas'; line-height: 80%; letter-spacing: 2px; font-size: 10px;">
+<div style="display: flex;">
+    <div style="display: flex; flex-direction: column; align-items: center;">
+        <canvas id="asciiCanvas" width="300" height="300" style="border:1px solid #000;"></canvas>
+        <input id="fileInput" type="file" accept="image/*" style="display:block; margin-top:8px;">
+    </div>
+    <div style="margin-left: 24px;">
+        <h4 style="font-family: monospace; white-space: pre; margin: 0; width: 300px; height: 300px;"></h4>
+    </div>
+</div>
+<script>
+    let img = new Image();
+    let canvas = document.querySelector('#asciiCanvas');
+    let ctx = canvas.getContext('2d');
+    let ascii = '@$#Y!=+~-:.. '; // 10단계
+
+    fileInput.addEventListener('change', function(e) {
+        let file = e.target.files[0];
+        if (!file) return;
+        let reader = new FileReader();
+        reader.onload = function(event) {
+            img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+
+    const h4 = document.querySelector('h4');
+    function renderAscii() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+        let asciiArt = '';
+        for (let j = 0; j < 300; j += 3) {
+            for (let i = 0; i < 300; i += 3) {
+                const idx = (j * 300 + i) * 4;
+                const r = imageData[idx];
+                const g = imageData[idx + 1];
+                const b = imageData[idx + 2];
+                const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+                const index = Math.floor(gray / 25.5);
+                asciiArt += ascii[index];
+            }
+            asciiArt += '\n';
+        }
+        h4.innerText = asciiArt;
+    }
+    img.addEventListener('load', renderAscii);
+    // img.addEventListener('load', function() {
+    //     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    //     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    //     document.querySelector('h4').innerText = '';
+    //     for(let j = 0; j < 300; j+=3){
+    //         for (let i = 0 ; i < 300; i+=3) {
+    //             let pixel = ctx.getImageData(i, j, 1, 1).data;
+    //             let gray = 0.299 * pixel[0] + 0.587 * pixel[1] + 0.114 * pixel[2];
+    //             let index = Math.floor(gray / 25.5);
+    //             document.querySelector('h4').innerText += ascii[index];
+    //             if (i >= 295) {
+    //                 document.querySelector('h4').innerText += '\n';
+    //             }
+    //         }
+    //     }
+    // });
+</script>
+</body>
+</html>
