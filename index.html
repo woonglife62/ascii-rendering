@@ -6,13 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css" />
     <script>
-        const CANVAS_SIZE = 300;
+        const CANVAS_SIZE = 200;
     </script>
 </head>
 <body style="margin: 0; font-family: 'consolas'; line-height: 80%; letter-spacing: 2px; font-size: 10px;">
 <div style="display: flex;">
     <div style="display: flex; flex-direction: column; align-items: center; margin-left: 10px;">
-        <canvas id="asciiCanvas" class="custom-canvas" width="300" height="300" style="border:1px solid #000;"></canvas>
+        <canvas id="asciiCanvas" class="custom-canvas" width="200" height="200" style="border:1px solid #000;"></canvas>
 
         <label for="fileInput" class="custom-file-upload">파일 선택</label>
         <input type="file" id="fileInput" style="display: none;"/>
@@ -33,7 +33,7 @@
         </div>
     </div>
     <div style="margin-left: 24px;">
-        <h4 style="font-family: monospace; white-space: pre; margin: 0; width: 300px; height: 300px;"></h4>
+        <h4 style="font-family: monospace; font-size: 5px; white-space: pre; margin: 0; width: 200px; height: 200px; line-height: 95%;"></h4>
     </div>
 </div>
 <script>
@@ -73,8 +73,8 @@
         }
         const imageData = cachedImageData;
         let asciiArt = '';
-        for (let j = 0; j < CANVAS_SIZE; j += 3) {
-            for (let i = 0; i < CANVAS_SIZE; i += 3) {
+        for (let j = 0; j < CANVAS_SIZE; j += 2) {
+            for (let i = 0; i < CANVAS_SIZE; i += 2) {
                 const idx = (j * CANVAS_SIZE + i) * 4;
                 const r = imageData[idx];
                 const g = imageData[idx + 1];
