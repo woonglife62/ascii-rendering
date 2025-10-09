@@ -4,12 +4,33 @@
     <meta charset="UTF-8">
     <title>ASCII Rendering</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css" />
+    <script>
+        const CANVAS_SIZE = 300;
+    </script>
 </head>
 <body style="margin: 0; font-family: 'consolas'; line-height: 80%; letter-spacing: 2px; font-size: 10px;">
 <div style="display: flex;">
-    <div style="display: flex; flex-direction: column; align-items: center;">
-        <canvas id="asciiCanvas" width="300" height="300" style="border:1px solid #000;"></canvas>
-        <input id="fileInput" type="file" accept="image/*" style="display:block; margin-top:8px;">
+    <div style="display: flex; flex-direction: column; align-items: center; margin-left: 10px;">
+        <canvas id="asciiCanvas" class="custom-canvas" width="300" height="300" style="border:1px solid #000;"></canvas>
+
+        <label for="fileInput" class="custom-file-upload">파일 선택</label>
+        <input type="file" id="fileInput" style="display: none;"/>
+
+        <div id="lang_option" class="lang-option" style="display: flex; flex-direction: column; align-items: flex-start;">
+            <label class="lang-radio" style="margin-bottom: 4px;">
+            <input type="radio" id="lang_option_default" name="lang_option" value="default" checked/>
+            <span>기본</span>
+            </label>
+            <label class="lang-radio">
+            <input type="radio" id="lang_option_en" name="lang_option" value="kr"/>
+            <span>영어</span>
+            </label>
+            <label class="lang-radio">
+            <input type="radio" id="lang_option_kr" name="lang_option" value="kr"/>
+            <span>한글(미완성)</span>
+            </label>
+        </div>
     </div>
     <div style="margin-left: 24px;">
         <h4 style="font-family: monospace; white-space: pre; margin: 0; width: 300px; height: 300px;"></h4>
@@ -19,7 +40,17 @@
     let img = new Image();
     let canvas = document.querySelector('#asciiCanvas');
     let ctx = canvas.getContext('2d');
-    let ascii = '@$#Y!=+~-:.. '; // 10단계
+    let ascii = '@$#Y!=+~-:.. ';
+
+    function setAsciiChars() {
+        if (lang_option_kr.checked) {
+            ascii = '팥글레시이ㅇ+~-:.. ';
+        } else if(lang_option_en.checked) {
+            ascii = 'WMOHx+=~-:.. ';
+        } else {
+            ascii = '@$#Y!=+~-:.. ';
+        }
+    }
 
     fileInput.addEventListener('change', function(e) {
         let file = e.target.files[0];
@@ -32,14 +63,19 @@
     });
 
     const h4 = document.querySelector('h4');
+    let cachedImageData = null;
+
     function renderAscii() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+        if (!cachedImageData) {
+            cachedImageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+        }
+        const imageData = cachedImageData;
         let asciiArt = '';
-        for (let j = 0; j < 300; j += 3) {
-            for (let i = 0; i < 300; i += 3) {
-                const idx = (j * 300 + i) * 4;
+        for (let j = 0; j < CANVAS_SIZE; j += 3) {
+            for (let i = 0; i < CANVAS_SIZE; i += 3) {
+                const idx = (j * CANVAS_SIZE + i) * 4;
                 const r = imageData[idx];
                 const g = imageData[idx + 1];
                 const b = imageData[idx + 2];
@@ -51,23 +87,16 @@
         }
         h4.innerText = asciiArt;
     }
-    img.addEventListener('load', renderAscii);
-    // img.addEventListener('load', function() {
-    //     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    //     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    //     document.querySelector('h4').innerText = '';
-    //     for(let j = 0; j < 300; j+=3){
-    //         for (let i = 0 ; i < 300; i+=3) {
-    //             let pixel = ctx.getImageData(i, j, 1, 1).data;
-    //             let gray = 0.299 * pixel[0] + 0.587 * pixel[1] + 0.114 * pixel[2];
-    //             let index = Math.floor(gray / 25.5);
-    //             document.querySelector('h4').innerText += ascii[index];
-    //             if (i >= 295) {
-    //                 document.querySelector('h4').innerText += '\n';
-    //             }
-    //         }
-    //     }
-    // });
+    img.addEventListener('load', function() {
+        cachedImageData = null;
+        renderAscii();
+    });
+    lang_option.addEventListener('change', function() {
+        setAsciiChars();
+        if (img.src) {
+            renderAscii();
+        }
+    });
 </script>
 </body>
 </html>
